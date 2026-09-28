@@ -12,16 +12,16 @@ module Metadata = struct
 
   let timeout_s = metadata_default_timeout
 
-  let ping () : Ezcurl.response =
+  let ping () : Http_ezcurl.response =
     Http_ezcurl.http ~timeout_s ~meth:`GET ~headers:metadata_headers
       (Uri.of_string metadata_ip_root)
 
-  let has_metadata_header (r : Ezcurl.response) =
+  let has_metadata_header (r : Http_ezcurl.response) =
     List.exists
       (fun (k, v) ->
         String.equal (String.lowercase_ascii k) metadata_flavor_header
         && String.equal (String.trim v) metadata_flavor_value)
-      r.Ezcurl.headers
+      r.Http_ezcurl.headers
 
   let get_project_id () :
       ( string,
@@ -208,7 +208,7 @@ let discover_credentials_with (discovery_mode : discovery_mode) :
         let resp = Metadata.ping () in
         Log.debug (fun m -> m "Got metadata response");
         let has_metadata_header = Metadata.has_metadata_header resp in
-        match Cohttp.Code.status_of_code resp.Ezcurl.code with
+        match Cohttp.Code.status_of_code resp.Http_ezcurl.code with
         | `OK when has_metadata_header ->
             Log.debug (fun m -> m "Metadata response was ok with header");
             let open CCResult.Infix in
@@ -216,8 +216,8 @@ let discover_credentials_with (discovery_mode : discovery_mode) :
             GCE_metadata { project_id }
         | _ ->
             Log.debug (fun m ->
-                m "Metadata response was: (%d, header: %b)" resp.Ezcurl.code
-                  has_metadata_header);
+                m "Metadata response was: (%d, header: %b)"
+                  resp.Http_ezcurl.code has_metadata_header);
             Stdlib.Error `No_credentials
       with exn ->
         Log.debug (fun m ->

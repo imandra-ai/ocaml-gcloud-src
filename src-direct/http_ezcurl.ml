@@ -3,11 +3,15 @@
 
 exception Curl_error of Curl.curlCode * string
 
+(* Our own record rather than ezcurl's: its [response] type became
+   ['body response] in ezcurl 0.3, so naming it would tie us to one series. *)
+type response = { code : int; headers : (string * string) list; body : string }
+
 let global_init = lazy (Curl.global_init Curl.CURLINIT_GLOBALALL)
 
 let http ?(timeout_s : float option) ~(meth : Cohttp.Code.meth)
     ~(headers : Cohttp.Header.t) ?(body : string option) (uri : Uri.t) :
-    Ezcurl.response =
+    response =
   Lazy.force global_init;
   let with_body = `String (CCOption.get_or ~default:"" body) in
   (* ezcurl only feeds a request body for PUT and POST. Any other method with
@@ -48,10 +52,11 @@ let http ?(timeout_s : float option) ~(meth : Cohttp.Code.meth)
           ?content ~url:(Uri.to_string uri) ~meth:ezmeth ())
   in
   match result with
-  | Ok response -> response
+  | Ok r ->
+      { code = r.Ezcurl.code; headers = r.Ezcurl.headers; body = r.Ezcurl.body }
   | Error (code, msg) -> raise (Curl_error (code, msg))
 
 let call ?timeout_s ~meth ~headers ?body uri : Cohttp.Code.status_code * string
     =
   let r = http ?timeout_s ~meth ~headers ?body uri in
-  (Cohttp.Code.status_of_code r.Ezcurl.code, r.Ezcurl.body)
+  (Cohttp.Code.status_of_code r.code, r.body)
