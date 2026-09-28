@@ -102,7 +102,7 @@ struct
   let stackdriver_nodejs_format = stackdriver_nodejs_format
 
   let report ?project_id (report_request : report_request) :
-      (unit, [> Error.t ]) result task =
+      (unit, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.stackdriver_integration ] ()
     >>= fun token_info ->

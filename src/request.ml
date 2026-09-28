@@ -1,5 +1,5 @@
 (** Shared HTTP plumbing for service functors: run one request through the
-    client, turning transport exceptions into [`Network_error]. *)
+    client, turning transport exceptions into [Error.network_error]. *)
 module Make
     (Async : Async_task_sig.S)
     (Client : Client_sig.S with type 'a task = 'a Async.t) =
@@ -15,10 +15,10 @@ struct
 
   let call ~(meth : Cohttp.Code.meth) ~(headers : Cohttp.Header.t)
       ?(body : string option) (uri : Uri.t) :
-      (Cohttp.Code.status_code * string, [> Error.t ]) result Async.t =
+      (Cohttp.Code.status_code * string, (module Error.S)) result Async.t =
     Log.debug (fun m ->
         m "%s %a" (Cohttp.Code.string_of_method meth) Uri.pp_hum uri);
     Async.catch
       (fun () -> R.ok (Client.call ~meth ~headers ?body uri))
-      (fun e -> R.fail (`Network_error e))
+      (fun e -> R.fail (Error.network_error e))
 end

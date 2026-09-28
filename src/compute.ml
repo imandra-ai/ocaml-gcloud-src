@@ -40,7 +40,7 @@ struct
     include FirewallRules
 
     let insert ?project_id ~(rule : rule) () :
-        (string, [> Error.t ]) result task =
+        (string, (module Error.S)) result task =
       let open R.Infix in
       Client.get_access_token
         ~scopes:[ Scopes.cloud_platform; Scopes.compute ]
@@ -64,7 +64,7 @@ struct
           R.lift (Error.of_response_status_code_and_body status_code body)
 
     let delete ?project_id ~(name : string) () :
-        (string, [> Error.t ]) result task =
+        (string, (module Error.S)) result task =
       let open R.Infix in
       Client.get_access_token
         ~scopes:[ Scopes.cloud_platform; Scopes.compute ]

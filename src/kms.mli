@@ -21,7 +21,7 @@ module Make
             key_ring:string ->
             crypto_key:string ->
             string ->
-            (string, [> Error.t ]) result task
+            (string, (module Error.S)) result task
 
           val encrypt :
             ?project_id:string ->
@@ -29,7 +29,7 @@ module Make
             key_ring:string ->
             crypto_key:string ->
             string ->
-            (string, [> Error.t ]) result task
+            (string, (module Error.S)) result task
         end
       end
     end

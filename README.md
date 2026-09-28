@@ -26,21 +26,20 @@ OCaml bindings to the Google Cloud Platform APIs
 To use another runtime, implement the two signatures in `gcloud`
 (`Async_task_sig.S`, `Client_sig.S`) and apply the service functors yourself.
 
+## Errors
+
+Every service function returns `('a, (module Gcloud.Error.S)) result`: a
+[packed error](https://github.com/imandra-ai/packed) that prints itself
+(`Gcloud.Error.pp`) and exposes its value (`Gcloud.Error.value`, a
+`Gcloud.Error.Model.t`) for callers that need to react to a particular
+failure, e.g. `Api_error (`Not_found, _)`. `Gcloud.Error.status_code` is a
+shortcut for the HTTP status of API errors. Wrap it into your own packed error
+with `Gcloud.Error.forget` or by repacking the value.
+
 ## Development
 
-The default nix devShell will have the packages needed to develop `ocaml-gcloud`:
-```
-nix develop '.#' # (or use nix-direnv)
-dune build ...
-```
-
-### Updating opam package set
-
-If you've updated the `.opam` files in the project and need to recalculate the `opam` deps, run `make onix-lock` and refresh the devShell:
-
-```
-# From inside the nix devShell
-$ make onix-lock
-$ exit # (or nix-direnv-reload if using nix-direnv)
-$ nix develop '.#'
-```
+This is the source repo; it has no vendored dependencies of its own. Build,
+test and lock it from the composition root,
+[imandra-ai/ocaml-gcloud](https://github.com/imandra-ai/ocaml-gcloud), which
+checks this repo out as `src/` next to `vendor/packed`. Consumers that vendor
+the bindings should vendor this repo and `packed` side by side.

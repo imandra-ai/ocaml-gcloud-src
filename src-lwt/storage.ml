@@ -5,7 +5,7 @@ let ok = Lwt_result.ok
 (* Streaming variants, specific to cohttp-lwt bodies. *)
 
 let get_object_stream (bucket_name : string) (object_path : string) :
-    (string Lwt_stream.t, [> Error.t ]) result Lwt.t =
+    (string Lwt_stream.t, (module Error.S)) result Lwt.t =
   let open Lwt_result.Infix in
   Common.get_access_token ~scopes:[ Scopes.devstorage_read_only ] ()
   >>= fun token_info ->
@@ -26,7 +26,7 @@ let get_object_stream (bucket_name : string) (object_path : string) :
           ]
       in
       Cohttp_lwt_unix.Client.get uri ~headers |> Lwt_result.ok)
-    (fun e -> Lwt_result.fail (`Network_error e))
+    (fun e -> Lwt_result.fail (Error.network_error e))
   >>= fun (resp, body) ->
   match Cohttp.Response.status resp with
   | `OK -> Cohttp_lwt.Body.to_stream body |> Lwt_result.return
@@ -36,7 +36,7 @@ let get_object_stream (bucket_name : string) (object_path : string) :
 
 let insert_object_stream ?if_generation_match ?if_generation_not_match
     bucket_name name (data : string Lwt_stream.t) :
-    (object_, [> Error.t ]) result Lwt.t =
+    (object_, (module Error.S)) result Lwt.t =
   let open Lwt_result.Infix in
   Common.get_access_token ~scopes:[ Scopes.devstorage_read_write ] ()
   >>= fun token_info ->
@@ -62,7 +62,7 @@ let insert_object_stream ?if_generation_match ?if_generation_not_match
       let body = Cohttp_lwt.Body.of_stream data in
       let open Lwt.Infix in
       Cohttp_lwt_unix.Client.post uri ~headers ~body >>= Util.consume_body |> ok)
-    (fun e -> Lwt_result.fail (`Network_error e))
+    (fun e -> Lwt_result.fail (Error.network_error e))
   >>= fun (resp, body) ->
   match Cohttp.Response.status resp with
   | `OK -> Error.parse_body_json object__of_yojson body |> Lwt.return

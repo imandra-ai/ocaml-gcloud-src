@@ -591,7 +591,8 @@ struct
   let host = "www.googleapis.com"
 
   module Datasets = struct
-    let get ?project_id ~dataset_id () : (string, [> Error.t ]) result task =
+    let get ?project_id ~dataset_id () : (string, (module Error.S)) result task
+        =
       let open R.Infix in
       Client.get_access_token ~scopes:[ Scopes.bigquery ] ()
       >>= fun token_info ->
@@ -608,7 +609,7 @@ struct
       | `OK -> R.return body
       | x -> R.lift (Error.of_response_status_code_and_body x body)
 
-    let list ?project_id () : (string, [> Error.t ]) result task =
+    let list ?project_id () : (string, (module Error.S)) result task =
       let open R.Infix in
       Client.get_access_token ~scopes:[ Scopes.bigquery ] ()
       >>= fun token_info ->
@@ -627,7 +628,7 @@ struct
       include Datasets.Tables
 
       let list ?project_id ?max_results ?page_token ~dataset_id () :
-          (resp, [> Error.t ]) result task =
+          (resp, (module Error.S)) result task =
         let open R.Infix in
         Client.get_access_token ~scopes:[ Scopes.bigquery ] ()
         >>= fun token_info ->
@@ -662,7 +663,7 @@ struct
 
     let query ?project_id ?dry_run ?(use_legacy_sql = false) ?(params = [])
         ?location ?use_int64_timestamp ?max_results q :
-        (query_response, [> Error.t ]) result task =
+        (query_response, (module Error.S)) result task =
       let parameter_mode =
         if use_legacy_sql || params = [] then None else Some NAMED
       in
@@ -724,11 +725,11 @@ struct
 
     let get_query_results ?page_token ?use_int64_timestamp
         (job_reference : job_reference) :
-        (query_response, [> Error.t ]) result task =
+        (query_response, (module Error.S)) result task =
       let open R.Infix in
       let job_id =
         match job_reference.job_id with
-        | None -> Error (`Gcloud_retry_timeout "get_query_results: no job_id")
+        | None -> Error (Error.retry_timeout "get_query_results: no job_id")
         | Some job_id -> Ok job_id
       in
       R.lift job_id >>= fun job_id ->
@@ -775,7 +776,7 @@ struct
 
     let rec poll_until_complete ?(poll_every_s = 1.) ?(attempts = 5)
         (query_response : query_response) :
-        (query_response_complete, [> Error.t ]) result task =
+        (query_response_complete, (module Error.S)) result task =
       let open R.Infix in
       match query_response.job_complete with
       | Some data ->
@@ -788,9 +789,9 @@ struct
       | None ->
           if attempts <= 0 then
             R.fail
-              (`Gcloud_retry_timeout
-                "Big_query.Jobs.poll_until_complete: maximum number of retries \
-                 reached")
+              (Error.retry_timeout
+                 "Big_query.Jobs.poll_until_complete: maximum number of \
+                  retries reached")
           else
             R.ok (Async.sleep poll_every_s) >>= fun () ->
             get_query_results query_response.job_reference

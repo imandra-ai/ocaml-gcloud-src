@@ -29,7 +29,7 @@ module Make
       subscription_id:string ->
       ids:string list ->
       unit ->
-      (unit, [> Error.t ]) result task
+      (unit, (module Error.S)) result task
 
     val pull :
       ?project_id:string ->
@@ -37,6 +37,6 @@ module Make
       max_messages:int ->
       ?return_immediately:bool ->
       unit ->
-      (received_messages, [> Error.t ]) result task
+      (received_messages, (module Error.S)) result task
   end
 end

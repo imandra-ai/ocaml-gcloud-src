@@ -14,6 +14,8 @@ depends: [
   "dune" {>= "3.8"}
   "ezgzip"
   "logs"
+  "packed-error"
+  "packed-error-factory"
   "ppx_deriving"
   "ppx_deriving_yojson"
   "ptime"

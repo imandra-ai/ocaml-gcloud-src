@@ -17,7 +17,7 @@ struct
       module KeyRings = struct
         module CryptoKeys = struct
           let call ?project_id ~location ~key_ring ~crypto_key ~action ~field
-              data parse : (string, [> Error.t ]) result task =
+              data parse : (string, (module Error.S)) result task =
             let open R.Infix in
             Client.get_access_token ~scopes:[ Scopes.cloudkms ] ()
             >>= fun token_info ->
@@ -43,7 +43,7 @@ struct
             | x -> R.lift (Error.of_response_status_code_and_body x body)
 
           let decrypt ?project_id ~location ~key_ring ~crypto_key ciphertext :
-              (string, [> Error.t ]) result task =
+              (string, (module Error.S)) result task =
             call ?project_id ~location ~key_ring ~crypto_key ~action:"decrypt"
               ~field:"ciphertext" ciphertext (function
               | `Assoc [ ("plaintext", `String plaintext) ] -> (
@@ -56,7 +56,7 @@ struct
               | _ -> Error "Expected an object with field 'plaintext'")
 
           let encrypt ?project_id ~location ~key_ring ~crypto_key plaintext :
-              (string, [> Error.t ]) result task =
+              (string, (module Error.S)) result task =
             call ?project_id ~location ~key_ring ~crypto_key ~action:"encrypt"
               ~field:"plaintext" plaintext (function
               | `Assoc fields -> (

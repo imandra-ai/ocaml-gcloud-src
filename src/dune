@@ -10,6 +10,8 @@
   containers
   ezgzip
   logs
+  packed-error
+  packed-error-factory
   ppx_deriving_yojson.runtime
   ptime
   ptime.clock.os

@@ -15,7 +15,7 @@ module type S = sig
 
   val catch : (unit -> 'a t) -> (exn -> 'a t) -> 'a t
   (** [catch f handler] runs [f ()] and routes any exception it raises to
-      [handler]. Used to turn transport failures into [`Network_error]. *)
+      [handler]. Used to turn transport failures into [Error.network_error]. *)
 
   val sleep : float -> unit t
   (** Sleep for the given number of seconds. Used by polling helpers. *)

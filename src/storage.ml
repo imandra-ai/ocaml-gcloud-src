@@ -67,7 +67,7 @@ struct
   include Types
 
   let get_object (bucket_name : string) (object_path : string) :
-      (string, [> Error.t ]) result task =
+      (string, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.devstorage_read_only ] ()
     >>= fun token_info ->
@@ -86,7 +86,7 @@ struct
         R.lift (Error.of_response_status_code_and_body status_code body)
 
   let insert_object ?if_generation_match ?if_generation_not_match bucket_name
-      name (data : string) : (object_, [> Error.t ]) result task =
+      name (data : string) : (object_, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.devstorage_read_write ] ()
     >>= fun token_info ->
@@ -109,7 +109,8 @@ struct
   (** NOTE: Multiple request rewrites not currently implemented.
       https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite *)
   let rewrite_object source_bucket source_object destination_bucket
-      destination_object : (rewrite_object_response, [> Error.t ]) result task =
+      destination_object :
+      (rewrite_object_response, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.devstorage_read_write ] ()
     >>= fun token_info ->
@@ -131,7 +132,7 @@ struct
 
   let list_objects ?(delimiter : string option) ?(prefix : string option)
       ?(page_token : string option) ~(bucket_name : string) () :
-      (list_objects_response, [> Error.t ]) result task =
+      (list_objects_response, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.devstorage_read_only ] ()
     >>= fun token_info ->
@@ -159,7 +160,7 @@ struct
 
   let delete_object ?if_generation_match ?if_generation_not_match
       (bucket_name : string) (object_path : string) :
-      (unit, [> Error.t ]) result task =
+      (unit, (module Error.S)) result task =
     let open R.Infix in
     Client.get_access_token ~scopes:[ Scopes.devstorage_read_write ] ()
     >>= fun token_info ->

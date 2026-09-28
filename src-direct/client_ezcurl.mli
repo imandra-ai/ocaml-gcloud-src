@@ -5,19 +5,19 @@
     {!Auth} discovery ({!Common.get_access_token}, {!Common.get_project_id}).
 
     Transport failures raise {!Http_ezcurl.Curl_error}, which the service
-    functors catch and report as [`Network_error]. *)
+    functors catch and report as [Error.network_error]. *)
 
 type 'a task = 'a
 
 module type CREDENTIALS = sig
   val get_access_token :
-    scopes:string list -> unit -> (Auth.token_info, [> Error.t ]) result
+    scopes:string list -> unit -> (Auth.token_info, (module Error.S)) result
 
   val get_project_id :
     ?project_id:string ->
     token_info:Auth.token_info ->
     unit ->
-    (string, [> Error.t ]) result
+    (string, (module Error.S)) result
 end
 
 module Make (_ : CREDENTIALS) : Gcloud.Client_sig.S with type 'a task = 'a

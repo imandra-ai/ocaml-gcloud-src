@@ -51,7 +51,7 @@ struct
         include Projects.Locations.Clusters
 
         let get ?project_id ~(location : string) ~(cluster : string) () :
-            (t, [> Error.t ]) result task =
+            (t, (module Error.S)) result task =
           let open R.Infix in
           Client.get_access_token ~scopes:[ Scopes.cloud_platform ] ()
           >>= fun token_info ->

@@ -18,6 +18,8 @@
    dune
    ezgzip
    logs
+   packed-error
+   packed-error-factory
    ppx_deriving
    ppx_deriving_yojson
    ptime

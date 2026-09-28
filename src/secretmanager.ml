@@ -44,7 +44,8 @@ struct
                 [projects/*/secrets/*/versions/*].
                 [projects/*/secrets/*/versions/latest] is an alias to the most
                 recently created [SecretVersion]. *)
-          let access ~(name : string) : (response, [> Error.t ]) result task =
+          let access ~(name : string) : (response, (module Error.S)) result task
+              =
             let open R.Infix in
             Client.get_access_token ~scopes:[ Scopes.cloud_platform ] ()
             >>= fun token_info ->

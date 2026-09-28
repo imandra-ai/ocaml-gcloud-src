@@ -70,7 +70,9 @@ module Secrets = struct
                 (Format.asprintf "projects/%s/secrets/%s/versions/%s" project_id
                    secret version)
           in
-          Lwt.return (Base64.decode s.payload.data)
+          Lwt.return
+            (Base64.decode s.payload.data
+            |> CCResult.map_err (fun (`Msg m) -> Error.msg m))
         in
         main ~copts ~pp:(fun fmt s -> CCFormat.fprintf fmt "%s" s) f
 

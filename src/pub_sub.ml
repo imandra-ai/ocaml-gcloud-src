@@ -43,7 +43,7 @@ struct
     let host = "pubsub.googleapis.com"
 
     let acknowledge ?project_id ~subscription_id ~ids () :
-        (unit, [> Error.t ]) result task =
+        (unit, (module Error.S)) result task =
       let open R.Infix in
       Client.get_access_token ~scopes:[ Scopes.pubsub ] () >>= fun token_info ->
       Client.get_project_id ?project_id ~token_info () >>= fun project_id ->
@@ -65,7 +65,7 @@ struct
 
     let pull ?project_id ~subscription_id ~max_messages
         ?(return_immediately = true) () :
-        (received_messages, [> Error.t ]) result task =
+        (received_messages, (module Error.S)) result task =
       let open R.Infix in
       Client.get_access_token ~scopes:[ Scopes.pubsub ] () >>= fun token_info ->
       Client.get_project_id ?project_id ~token_info () >>= fun project_id ->

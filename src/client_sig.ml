@@ -21,7 +21,9 @@ module type S = sig
       raised and are caught by the caller with {!Async_task_sig.S.catch}. *)
 
   val get_access_token :
-    scopes:string list -> unit -> (Auth.token_info, [> Error.t ]) result task
+    scopes:string list ->
+    unit ->
+    (Auth.token_info, (module Error.S)) result task
   (** An OAuth2 access token valid for [scopes]. Implementations are expected
       to cache and refresh; see [Gcloud_lwt.Common.get_access_token] for the Lwt
       behaviour. *)
@@ -30,7 +32,7 @@ module type S = sig
     ?project_id:string ->
     token_info:Auth.token_info ->
     unit ->
-    (string, [> Error.t ]) result task
+    (string, (module Error.S)) result task
   (** Resolve the project ID, preferring an explicitly passed one. See
       [Gcloud_lwt.Common.get_project_id] for the discovery order the Lwt backend uses. *)
 end

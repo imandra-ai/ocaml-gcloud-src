@@ -1,29 +1,6 @@
-.PHONY: build
-build:
-	dune build
+# This is the source repo. Build and test it from the composition root,
+# imandra-ai/ocaml-gcloud, which vendors the non-opam dependencies (packed).
 
-.PHONY: watch-build
-watch-build:
-	dune build -w
-
-.PHONY: test
-test:
-	dune exec test/test_main.exe
-
-.PHONY: clean
-clean:
-	dune clean
-
-_opam:
-	opam switch create . ocaml-base-compiler.5.1.1 --empty
-
-opam-install-deps:
-	opam install . --deps-only --working-dir --locked --with-test --yes
-
+.PHONY: format
 format:
 	dune build @fmt --auto-promote
-
-onix-lock:
-	onix lock ./gcloud.opam ./gcloud-lwt.opam ./gcloud-direct.opam ./gcloud-cli.opam --resolutions="ocaml-system=5.2.0" --lock-file ./onix-lock.json
-	onix lock ./gcloud.opam ./gcloud-lwt.opam ./gcloud-direct.opam ./gcloud-cli.opam ./gcloud-melange.opam --resolutions="ocaml-system=5.2.0,ocaml-lsp-server" --with-dev-setup=true --with-test=true --lock-file ./onix-lock-dev.json
-	git add onix-lock.json onix-lock-dev.json

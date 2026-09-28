@@ -189,9 +189,10 @@ module Make
       ?project_id:string ->
       dataset_id:string ->
       unit ->
-      (string, [> Error.t ]) result task
+      (string, (module Error.S)) result task
 
-    val list : ?project_id:string -> unit -> (string, [> Error.t ]) result task
+    val list :
+      ?project_id:string -> unit -> (string, (module Error.S)) result task
 
     module Tables : sig
       include module type of struct
@@ -204,7 +205,7 @@ module Make
         ?page_token:string ->
         dataset_id:string ->
         unit ->
-        (resp, [> Error.t ]) result task
+        (resp, (module Error.S)) result task
     end
   end
 
@@ -222,22 +223,22 @@ module Make
       ?use_int64_timestamp:bool ->
       ?max_results:int ->
       string ->
-      (query_response, [> Error.t ]) result task
+      (query_response, (module Error.S)) result task
 
     val get_query_results :
       ?page_token:string ->
       ?use_int64_timestamp:bool ->
       job_reference ->
-      (query_response, [> Error.t ]) result task
+      (query_response, (module Error.S)) result task
 
     val poll_until_complete :
       ?poll_every_s:float ->
       ?attempts:int ->
       query_response ->
-      (query_response_complete, [> Error.t ]) result task
+      (query_response_complete, (module Error.S)) result task
 
     val fetch_all_rows :
       query_response_complete ->
-      (query_response_complete, [> Error.t ]) result task
+      (query_response_complete, (module Error.S)) result task
   end
 end

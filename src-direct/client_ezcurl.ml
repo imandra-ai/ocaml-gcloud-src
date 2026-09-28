@@ -2,13 +2,13 @@ type 'a task = 'a
 
 module type CREDENTIALS = sig
   val get_access_token :
-    scopes:string list -> unit -> (Auth.token_info, [> Error.t ]) result
+    scopes:string list -> unit -> (Auth.token_info, (module Error.S)) result
 
   val get_project_id :
     ?project_id:string ->
     token_info:Auth.token_info ->
     unit ->
-    (string, [> Error.t ]) result
+    (string, (module Error.S)) result
 end
 
 module Make (C : CREDENTIALS) = struct

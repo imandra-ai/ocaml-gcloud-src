@@ -27,7 +27,7 @@ let project_id_of_credentials (credentials : Auth.credentials) : string option =
     available for the caller, e.g. a CLI entrypoint where --project-id X may or
     may not have been passed *)
 let get_project_id ?project_id ~(token_info : Auth.token_info) () :
-    (string, [> Error.t ]) result =
+    (string, (module Error.S)) result =
   let m label x = CCOption.map (fun pid -> (pid, label)) x in
   match
     CCOption.choice
@@ -42,8 +42,7 @@ let get_project_id ?project_id ~(token_info : Auth.token_info) () :
   | Some (project_id, label) ->
       Log.debug (fun m -> m "Using project_id from: %s" label);
       Ok project_id
-  | None -> Error `No_project_id
+  | None -> Error Error.no_project_id
 
-let get_access_token ?scopes () : (Auth.token_info, [> Error.t ]) result =
-  Auth.get_access_token ?scopes ()
-  |> CCResult.map_err (fun e -> `Gcloud_auth_error e)
+let get_access_token ?scopes () : (Auth.token_info, (module Error.S)) result =
+  Auth.get_access_token ?scopes () |> CCResult.map_err Error.auth_error

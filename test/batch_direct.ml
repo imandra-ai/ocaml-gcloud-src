@@ -145,9 +145,11 @@ let tests : unit Alcotest_lwt.test_case list =
         match
           Batch_fake.Projects.Locations.Jobs.get ~location:"l" ~job:"missing" ()
         with
-        | Error (`Gcloud_api_error (`Not_found, Gcloud.Error.Json { error })) ->
-            Alcotest.(check string) "message" "nope" error.message
-        | Error e -> Alcotest.failf "unexpected error: %a" Gcloud.Error.pp e
+        | Error e -> (
+            match Gcloud.Error.value e with
+            | Api_error (`Not_found, Gcloud.Error.Json { error }) ->
+                Alcotest.(check string) "message" "nope" error.message
+            | _ -> Alcotest.failf "unexpected error: %a" Gcloud.Error.pp e)
         | Ok _ -> Alcotest.fail "expected an error");
     Alcotest_lwt.test_case_sync
       "libcurl transport failure becomes Network_error" `Quick (fun () ->
@@ -168,8 +170,10 @@ let tests : unit Alcotest_lwt.test_case list =
           match
             Batch_curl.Projects.Locations.Jobs.get ~location:"l" ~job:"j" ()
           with
-          | Error (`Network_error _) | Error (`Gcloud_api_error _) -> true
-          | Error e -> Alcotest.failf "unexpected error: %a" Gcloud.Error.pp e
+          | Error e -> (
+              match Gcloud.Error.value e with
+              | Network_error _ | Api_error _ -> true
+              | _ -> Alcotest.failf "unexpected error: %a" Gcloud.Error.pp e)
           | Ok _ -> false
         in
         Alcotest.(check bool) "functor over real transport" true via_functor);
