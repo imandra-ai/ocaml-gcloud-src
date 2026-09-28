@@ -30,3 +30,11 @@
  (alias runtest)
  (action
   (run ./test_main.exe)))
+
+; Everything in this directory is local (no external state), so
+; [@local-tests] is a view of the directory's [runtest].
+
+(alias
+ (name local-tests)
+ (deps
+  (alias runtest)))
