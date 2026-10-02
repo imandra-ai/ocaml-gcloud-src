@@ -1,0 +1,23 @@
+; External tests: real GCP calls, real credentials. Plain [(executables)],
+; NOT [(tests)], so they stay off the default [runtest]; [@external-tests]
+; is the only entry point (see the taxonomy in the composition root's dune).
+
+(executables
+ (names external_tests)
+ (preprocess
+  (pps ppx_here))
+ (libraries
+  alcotest
+  alcotest-lwt
+  base64
+  gcloud
+  gcloud-lwt
+  logs.fmt
+  lwt
+  mirage-crypto-rng.unix))
+
+(rule
+ (alias external-tests)
+ (deps ./external_tests.exe)
+ (action
+  (run ./external_tests.exe)))

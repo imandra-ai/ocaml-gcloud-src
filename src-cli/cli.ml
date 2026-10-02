@@ -44,7 +44,7 @@ let main ~copts ~pp f =
       match result with
       | Ok x -> Log_lwt.app (fun m -> m "%a" pp x)
       | Error e ->
-          let* () = Log_lwt.err (fun m -> m "%a" Gcloud.Error.pp e) in
+          let* () = Log_lwt.err (fun m -> m "%a" Gcloud_lwt.Error.pp e) in
           exit 1
     in
     Lwt.return result
@@ -55,7 +55,7 @@ module Secrets = struct
   module Versions = struct
     module Access = struct
       let access ~copts ~secret version =
-        let open Gcloud in
+        let open Gcloud_lwt in
         let f () =
           let open Lwt_result.Syntax in
           let* token_info =
@@ -70,7 +70,9 @@ module Secrets = struct
                 (Format.asprintf "projects/%s/secrets/%s/versions/%s" project_id
                    secret version)
           in
-          Lwt.return (Base64.decode s.payload.data)
+          Lwt.return
+            (Base64.decode s.payload.data
+            |> CCResult.map_err (fun (`Msg m) -> Error.msg m))
         in
         main ~copts ~pp:(fun fmt s -> CCFormat.fprintf fmt "%s" s) f
 

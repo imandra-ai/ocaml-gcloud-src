@@ -16,9 +16,25 @@
   (pps ppx_here))
  (modules
   (:standard \ test_main))
- (libraries alcotest alcotest-lwt gcloud))
+ (libraries
+  alcotest
+  alcotest-lwt
+  cohttp
+  gcloud
+  gcloud-lwt
+  gcloud-direct
+  uri
+  yojson))
 
 (rule
  (alias runtest)
  (action
   (run ./test_main.exe)))
+
+; Everything in this directory is local (no external state), so
+; [@local-tests] is a view of the directory's [runtest].
+
+(alias
+ (name local-tests)
+ (deps
+  (alias runtest)))

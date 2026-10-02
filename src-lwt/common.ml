@@ -50,8 +50,8 @@ let get_project_id ?project_id ~token_info () =
       | Some (project_id, label) ->
           let () = Log.debug (fun m -> m "Using project_id from: %s" label) in
           Lwt_result.return project_id
-      | None -> Lwt_result.fail `No_project_id)
+      | None -> Lwt_result.fail Error.no_project_id)
 
-let get_access_token ?scopes () : (Auth.token_info, [> Error.t ]) Lwt_result.t =
-  Auth.get_access_token ?scopes ()
-  |> Lwt_result.map_error (fun e -> `Gcloud_auth_error e)
+let get_access_token ?scopes () :
+    (Auth.token_info, (module Error.S)) Lwt_result.t =
+  Auth.get_access_token ?scopes () |> Lwt_result.map_error Error.auth_error

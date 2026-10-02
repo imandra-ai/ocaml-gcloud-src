@@ -4,12 +4,13 @@ let () =
 
 let () = Mirage_crypto_rng_unix.initialize (module Mirage_crypto_rng.Fortuna)
 
+(* Hermetic tests only: no network, no credentials. Anything that talks to
+   real GCP lives in ../external_test. *)
 let () =
   Lwt_main.run
   @@ Alcotest_lwt.run "gcloud"
        [
-         ("stackdriver errors", Gcloud_tests.Stackdriver_errors.tests);
-         ("container", Gcloud_tests.Container.tests);
-         ("compute", Gcloud_tests.Compute.tests);
-         ("secretmanager", Gcloud_tests.Secretmanager.tests);
+         ("batch", Gcloud_tests.Batch.tests);
+         ("batch v1alpha", Gcloud_tests.Batch.alpha_tests);
+         ("batch direct", Gcloud_tests.Batch_direct.tests);
        ]
